@@ -8,9 +8,7 @@ def calculate_ngram_probabilities(pdseries, ngram_val, stop_words=False):
         pdseries (pandas series): a series of text
     
     Returns:
-        ngram_probability_dct (dct): a dictionary of ngram probabilities
-            key: ngram
-            value: probability
+        ngram_probability_df: a dataframe with the ngram probability for each unique ngram
     """
     if stop_words is True:
         text_vectorizer = CountVectorizer(analyzer='word', stop_words='english', ngram_range=(ngram_val, ngram_val))
@@ -21,7 +19,11 @@ def calculate_ngram_probabilities(pdseries, ngram_val, stop_words=False):
 
     ngram_probability_dct = {}
     total_counts = sum(text_vectorizer.vocabulary_.values())
-    for k, v in text_x.vocabulary_.items():
+    for k, v in text_vectorizer.vocabulary_.items():
         ngram_probability_dct[k] = v / total_counts
+    
+    ngram_probability_df = pd.DataFrame(list(ngram_probability_dct.items()), columns=['Ngram', 'Probability'])
+    ngram_probability_df.loc[:, 'N'] = 2
+    ngram_probability_df = ngram_probability_df.sort_values(['Probability'], ascending=False)
 
-    return ngram_probability_dct
+    return ngram_probability_df
