@@ -1,3 +1,5 @@
+import pandas as pd
+import math
 from sklearn.feature_extraction.text import CountVectorizer
 
 def calculate_ngram_probabilities(pdseries, ngram_val, stop_words=False):
@@ -20,10 +22,12 @@ def calculate_ngram_probabilities(pdseries, ngram_val, stop_words=False):
     ngram_probability_dct = {}
     total_counts = sum(text_vectorizer.vocabulary_.values())
     for k, v in text_vectorizer.vocabulary_.items():
-        ngram_probability_dct[k] = v / total_counts
+        probability = v / total_counts
+        if probability != 0:
+            ngram_probability_dct[k] = math.log(probability)
     
-    ngram_probability_df = pd.DataFrame(list(ngram_probability_dct.items()), columns=['Ngram', 'Probability'])
-    ngram_probability_df.loc[:, 'N'] = 2
-    ngram_probability_df = ngram_probability_df.sort_values(['Probability'], ascending=False)
+    ngram_probability_df = pd.DataFrame(list(ngram_probability_dct.items()), columns=['Ngram', 'Log Probability'])
+    ngram_probability_df.loc[:, 'N'] = ngram_val
+    ngram_probability_df = ngram_probability_df.sort_values(['Log Probability'], ascending=False)
 
     return ngram_probability_df
