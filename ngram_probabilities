@@ -1,0 +1,27 @@
+from sklearn.feature_extraction.text import CountVectorizer
+
+def calculate_tfidf(pdseries, ngram_val, stop_words=False):
+    """
+    Calculates ngram probabilities in a pandas series 
+
+    Inputs:
+        pdseries (pandas series): a series of text
+    
+    Returns:
+        ngram_probability_dct (dct): a dictionary of ngram probabilities
+            key: ngram
+            value: probability
+    """
+    if stop_words is True:
+        text_vectorizer = CountVectorizer(analyzer='word', stop_words='english', ngram_range=(ngram_val, ngram_val))
+    else:
+        text_vectorizer = CountVectorizer(analyzer='word', ngram_range=(ngram_val, ngram_val))
+    
+    text_x = text_vectorizer.fit_transform(pdseries)
+
+    ngram_probability_dct = {}
+    total_counts = sum(text_x.vocabulary_.values())
+    for k, v in text_x.vocabulary_.items():
+        ngram_probability_dct[k] = v / total_counts
+
+    return ngram_probability_dct
